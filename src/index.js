@@ -4,6 +4,7 @@ import type { Batch, Bucket } from './types';
 
 import * as most from 'most';
 
+
 import { Events } from './enums';
 import Batcher from './services/Batcher';
 import Converter from './services/Converter';
@@ -32,7 +33,7 @@ const start$$ = most.timestamp(start$)
 
 most
   .switchLatest(start$$)
-  .combine((...streams) => streams, time.periodic$)
+  .combine((...streams): Array<any> => streams, time.periodic$)
   .filter(([event]): boolean => {
     if(!event.bucket.size) {
       if(time.checkOvertime(event)) Batcher.startBatching();
@@ -46,8 +47,8 @@ most
 
     return false;
   })
-  .skipRepeatsWith(([prev], [next]) => prev.id === next.id)
-  .observe(([bucket]) => {
+  .skipRepeatsWith(([prev], [next]): boolean => prev.id === next.id)
+  .observe(([bucket]): void => {
     Batcher.startBatching();
     postman.sendBucket(bucket);
   });
